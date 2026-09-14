@@ -1,0 +1,45 @@
+{
+  "PUBLIC_CORE": [
+    "src/ia_rag/__init__.py",
+    "src/ia_rag/assurance_protocols.py",
+    "src/ia_rag/canonical_compiler.py",
+    "src/ia_rag/canonical_execution_adapter.py",
+    "src/ia_rag/canonical_execution_admission.py",
+    "src/ia_rag/canonical_execution_enforcement.py",
+    "src/ia_rag/canonical_execution_receipt.py",
+    "src/ia_rag/canonical_lineage.py",
+    "src/ia_rag/canonical_plan.py",
+    "src/ia_rag/canonical_semantic_contract.py",
+    "src/ia_rag/claims.py",
+    "src/ia_rag/claims_from_graph_result.py",
+    "src/ia_rag/domain.py",
+    "src/ia_rag/domain_semantic_extensions.py",
+    "src/ia_rag/domain_utils.py",
+    "src/ia_rag/planner_registry.py",
+    "src/ia_rag/protocols.py",
+    "src/ia_rag/public_rendering.py",
+    "src/ia_rag/public_runtime.py",
+    "src/ia_rag/query_router.py",
+    "src/ia_rag/reference_assurance.py",
+    "src/ia_rag/reference_domains.py"
+  ],
+  "PUBLIC_TEST": [
+    "tests/public_core/test_r5b_public_core.py"
+  ],
+  "PUBLIC_EXAMPLE": [
+    "examples/reference_demo.py"
+  ],
+  "PUBLIC_DOC": [
+    "README.md",
+    "SECURITY.md",
+    "CONTRIBUTING.md",
+    "LICENSE_PENDING.md",
+    "docs/architecture.md",
+    "docs/public-core-boundary.md"
+  ],
+  "PACKAGING": [
+    ".gitignore",
+    "pyproject.toml",
+    "EXTRACTION_ALLOWLIST.json"
+  ]
+}
