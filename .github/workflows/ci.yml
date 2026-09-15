@@ -1,0 +1,196 @@
+name: IA-RAG Core CI
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    name: Python 3.11 clean-room qualification
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install qualification tools
+        run: python -m pip install build pytest pip-audit pip-licenses cyclonedx-bom
+
+      - name: Build wheel and sdist
+        run: python -m build --sdist --wheel --outdir dist
+
+      - name: Inspect package and source boundary
+        run: |
+          python - <<'PY'
+          import ast
+          import re
+          import sys
+          import zipfile
+          import os
+          from pathlib import Path
+
+          root = Path.cwd()
+          forbidden = [
+              "I" + "B" + "M", "ie." + "i" + "b" + "m" + ".com",
+              "github." + "i" + "b" + "m" + ".com",
+              "private_" + "runtime", "principal_" + "continuity",
+              "contracts_" + "compat", "LICENSE_" + "PENDING",
+          ]
+          text_files = [p for p in root.rglob("*") if p.is_file() and ".git" not in p.parts]
+          findings = []
+          for path in text_files:
+              data = path.read_bytes()
+              if b"\0" in data[:4096]:
+                  continue
+              text = data.decode("utf-8", errors="ignore")
+              for value in forbidden:
+                  if re.search(re.escape(value), text, re.IGNORECASE):
+                      findings.append((str(path), value))
+          assert not findings, findings
+          assert not [p for p in text_files if re.search(r"I" + "B" + "M|ie\." + "i" + "b" + "m|github\." + "i" + "b" + "m", p.name, re.I)]
+
+          wheels = sorted(Path("dist").glob("*.whl"))
+          sdists = sorted(Path("dist").glob("*.tar.gz"))
+          assert len(wheels) == 1 and len(sdists) == 1
+          with zipfile.ZipFile(wheels[0]) as archive:
+              names = [name for name in archive.namelist() if not name.endswith("/")]
+              assert all(name.startswith(("ia_rag/", "ia_rag_core-")) for name in names)
+              assert all(not any(re.search(re.escape(value), archive.read(name).decode("utf-8", "ignore"), re.I) for value in forbidden) for name in names)
+
+          stdlib = set(getattr(sys, "stdlib_module_names", set())) | {"__future__"}
+          external = []
+          for path in sorted((root / "src" / "ia_rag").glob("*.py")):
+              tree = ast.parse(path.read_text(encoding="utf-8"))
+              for node in ast.walk(tree):
+                  if isinstance(node, ast.Import):
+                      modules = [(alias.name.split(".")[0], False) for alias in node.names]
+                  elif isinstance(node, ast.ImportFrom) and node.module:
+                      modules = [(node.module.split(".")[0], node.level > 0)]
+                  else:
+                      continue
+                  for module, local in modules:
+                      if not local and module != "ia_rag" and module not in stdlib:
+                          external.append(module)
+          assert not external, sorted(set(external))
+          print("boundary=PASS package=PASS external_runtime_imports=0")
+          PY
+
+      - name: Install wheel in a clean environment
+        run: |
+          python -m venv "$RUNNER_TEMP/wheel-env"
+          "$RUNNER_TEMP/wheel-env/bin/python" -m pip install --no-deps dist/*.whl
+          "$RUNNER_TEMP/wheel-env/bin/python" -m pip install pytest
+
+      - name: Run installed public tests and API freeze check
+        run: |
+          VENV="$RUNNER_TEMP/wheel-env"
+          env -u PYTHONPATH "$VENV/bin/python" -m pytest -p no:cacheprovider "$GITHUB_WORKSPACE/tests"
+          (cd "$RUNNER_TEMP" && env -u PYTHONPATH "$VENV/bin/python" - <<'PY'
+          import json
+          import importlib.metadata
+          import os
+          import sys
+          from pathlib import Path
+          import ia_rag
+
+          manifest = json.loads((Path(os.environ["GITHUB_WORKSPACE"]) / "docs/public-api.json").read_text())
+          assert list(ia_rag.__all__) == manifest["exports"]
+          assert manifest["version"] == importlib.metadata.version("ia-rag-core")
+          assert not hasattr(ia_rag, "__getattr__")
+          assert not hasattr(ia_rag, "EXPORT_CLASSIFICATION")
+          assert "ia_rag.hybrid_reasoning" not in sys.modules
+          print("public_api=PASS optional_imports=PASS")
+          PY
+          )
+
+      - name: Run demo and deterministic replay
+        run: |
+          VENV="$RUNNER_TEMP/wheel-env"
+          mkdir -p "$RUNNER_TEMP/arbitrary" "$RUNNER_TEMP/read-only"
+          (cd "$RUNNER_TEMP/arbitrary" && env -u PYTHONPATH "$VENV/bin/python" "$GITHUB_WORKSPACE/examples/reference_demo.py" > "$RUNNER_TEMP/demo-a.json")
+          (cd "$RUNNER_TEMP/arbitrary" && env -u PYTHONPATH "$VENV/bin/python" "$GITHUB_WORKSPACE/examples/reference_demo.py" > "$RUNNER_TEMP/demo-b.json")
+          (cd "$RUNNER_TEMP/read-only" && env -u PYTHONPATH "$VENV/bin/python" "$GITHUB_WORKSPACE/examples/reference_demo.py" > "$RUNNER_TEMP/demo-read-only.json")
+          cmp "$RUNNER_TEMP/demo-a.json" "$RUNNER_TEMP/demo-b.json"
+          cmp "$RUNNER_TEMP/demo-a.json" "$RUNNER_TEMP/demo-read-only.json"
+          sha256sum "$RUNNER_TEMP/demo-a.json"
+          env -u PYTHONPATH "$VENV/bin/python" -m pip check
+
+      - name: Run network-blocked tests and demo
+        run: |
+          VENV="$RUNNER_TEMP/wheel-env"
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          block = Path(os.environ["RUNNER_TEMP"]) / "network-block"
+          block.mkdir()
+          (block / "sitecustomize.py").write_text("""
+          import socket
+          def blocked(*args, **kwargs):
+              raise RuntimeError('network disabled by hermetic CI test')
+          socket.create_connection = blocked
+          socket.getaddrinfo = blocked
+          socket.socket.connect = blocked
+          socket.socket.connect_ex = blocked
+          """)
+          PY
+          PYTHONPATH="$RUNNER_TEMP/network-block" "$VENV/bin/python" -m pytest -p no:cacheprovider "$GITHUB_WORKSPACE/tests"
+          (cd "$RUNNER_TEMP/arbitrary" && PYTHONPATH="$RUNNER_TEMP/network-block" "$VENV/bin/python" "$GITHUB_WORKSPACE/examples/reference_demo.py" > "$RUNNER_TEMP/demo-network.json")
+          cmp "$RUNNER_TEMP/demo-a.json" "$RUNNER_TEMP/demo-network.json"
+
+      - name: Generate SBOM, license report, and vulnerability report
+        run: |
+          VENV="$RUNNER_TEMP/wheel-env"
+          cyclonedx-py environment "$VENV/bin/python" --pyproject pyproject.toml --mc-type library --sv 1.6 --output-reproducible --of JSON -o "$RUNNER_TEMP/sbom.cyclonedx.json"
+          pip-licenses --python "$VENV/bin/python" --format=json --ignore-packages ia-rag-core > "$RUNNER_TEMP/dependency-license-report.json"
+          pip-audit --path "$VENV" --format json --progress-spinner off > "$RUNNER_TEMP/vulnerability-report.json"
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          root = Path(os.environ["RUNNER_TEMP"])
+          licenses = json.loads((root / "dependency-license-report.json").read_text())
+          assert not [item for item in licenses if not item.get("License") or item["License"].lower() == "unknown"]
+          report = json.loads((root / "vulnerability-report.json").read_text())
+          assert not report.get("dependencies")
+          print("unknown_dependency_licenses=0 vulnerabilities=0")
+          PY
+
+      - name: Check Git object hygiene
+        run: |
+          git fsck --no-reflogs --unreachable --no-progress
+          python - <<'PY'
+          import re
+          import subprocess
+          forbidden = ["I" + "B" + "M", "ie." + "i" + "b" + "m" + ".com", "github." + "i" + "b" + "m" + ".com", "private_" + "runtime", "principal_" + "continuity", "contracts_" + "compat"]
+          refs = subprocess.check_output(["git", "rev-list", "--all"], text=True).splitlines()
+          findings = []
+          for ref in refs:
+              names = subprocess.check_output(["git", "ls-tree", "-r", "--name-only", ref], text=True).splitlines()
+              for name in names:
+                  result = subprocess.run(["git", "show", f"{ref}:{name}"], text=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+                  if result.returncode == 0 and any(re.search(re.escape(value), result.stdout, re.I) for value in forbidden):
+                      findings.append((ref, name))
+          assert not findings, findings
+          print("git_object_scan=PASS")
+          PY
+
+      - name: Upload qualification reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: ia-rag-core-rc-qualification
+          path: |
+            dist/
+            ${{ runner.temp }}/sbom.cyclonedx.json
+            ${{ runner.temp }}/dependency-license-report.json
+            ${{ runner.temp }}/vulnerability-report.json

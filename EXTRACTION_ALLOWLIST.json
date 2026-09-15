@@ -36,11 +36,15 @@
     "LICENSE",
     "CHANGELOG.md",
     "docs/architecture.md",
-    "docs/public-core-boundary.md"
+    "docs/public-core-boundary.md",
+    "docs/public-api.json"
   ],
   "PACKAGING": [
     ".gitignore",
     "pyproject.toml",
     "EXTRACTION_ALLOWLIST.json"
+  ],
+  "PUBLIC_CI": [
+    ".github/workflows/ci.yml"
   ]
 }
