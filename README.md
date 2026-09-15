@@ -47,10 +47,8 @@ deterministic for the same query, domain configuration, and input facts.
 
 ## Install and run
 
-The release candidate is local and is not uploaded to a package registry.
-
 ```bash
-python -m pip install ia_rag_core-0.1.0rc1-py3-none-any.whl
+python -m pip install ia_rag_core-0.1.0-py3-none-any.whl
 python examples/reference_demo.py
 ```
 

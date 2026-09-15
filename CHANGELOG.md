@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.0 — 2026-09-15
+
+First public release, promoted from the `0.1.0rc1` candidate without
+semantic or runtime changes.
+
+The release provides the canonical plans, deterministic lowering,
+admission/enforcement, neutral assurance, bounded in-memory execution,
+evidence/provenance, receipts/lineage, synthetic domains, and hermetic
+reference runtime described below.
+
 ## 0.1.0rc1 — 2026-09-15
 
 Initial IA-RAG Core release candidate.

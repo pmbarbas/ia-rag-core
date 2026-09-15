@@ -1,4 +1,4 @@
-"""Supported public API for IA-RAG Core 0.1.0rc1.
+"""Supported public API for IA-RAG Core 0.1.0.
 
 The package import is hermetic: it loads only the canonical runtime, neutral
 protocols, reference assurance, and synthetic reference-domain components.
