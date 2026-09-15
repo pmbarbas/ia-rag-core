@@ -3,12 +3,34 @@ requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "ia-rag-public-core"
-version = "0.1.0"
-description = "A neutral, deterministic information-architecture-aware retrieval and reasoning core."
+name = "ia-rag-core"
+version = "0.1.0rc1"
+description = "Governed, structure-aware retrieval and execution planning for agentic systems."
 readme = "README.md"
 requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+authors = [
+    {name = "IA-RAG Core contributors"},
+]
+maintainers = [
+    {name = "IA-RAG Core maintainers"},
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
 dependencies = []
+
+[project.urls]
+Homepage = "https://example.invalid/ia-rag-core"
+Documentation = "https://example.invalid/ia-rag-core/docs"
+Source = "https://example.invalid/ia-rag-core/source"
 
 [project.optional-dependencies]
 dev = ["pytest>=8"]
@@ -16,6 +38,11 @@ dev = ["pytest>=8"]
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools]
+include-package-data = false
+
+[tool.setuptools.package-data]
+ia_rag = []
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-

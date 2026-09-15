@@ -1,74 +1,104 @@
-# IA-RAG public core
+# IA-RAG Core
 
-IA-RAG is a small, neutral runtime for information-architecture-aware
-question answering. It makes the information architecture explicit before
-execution: a domain describes entities and relations, semantic interpretation
-produces a typed plan, governance admits or rejects that plan, bounded
-execution produces evidence, and deterministic rendering exposes the result.
+Governed, structure-aware retrieval and execution planning for agentic
+systems.
 
-This repository is a local public-core candidate. It contains only a
-hermetic reference runtime and synthetic domains. It does not include
-external databases, model providers, enterprise identity integrations, or
-application-specific adapters.
+IA-RAG Core makes the information architecture of a question explicit before
+execution. A domain describes entities, relations, capabilities, bounds, and
+world semantics. The runtime then turns a question into an inspectable
+semantic program, a typed logical plan, and one bounded executable plan before
+producing evidence, claims, a receipt, and a deterministic response.
 
-## Install
+## Why information architecture comes first
 
-```bash
-python -m pip install -e .
+Ordinary vector RAG is useful for ranking relevant text, but relevance is not
+the same as authoritative execution semantics. A similarity result does not
+by itself say which entities and relations are allowed, whether a traversal
+is complete, or what an empty result means.
+
+IA-RAG Core puts those decisions in an explicit domain and plan. Retrieval
+strategies can supply candidates through neutral protocols; the canonical
+runtime still validates the structure, applies bounds, records evidence, and
+binds the result to the exact plan that ran.
+
+## Canonical pipeline
+
+```text
+DomainPack
+  -> PlannerRegistry
+  -> Semantic interpretation
+  -> CanonicalCompiler
+  -> LogicalPlan
+  -> deterministic lowering
+  -> ExecutablePlan
+  -> Admission and assurance
+  -> PRE enforcement
+  -> bounded execution
+  -> POST enforcement
+  -> Evidence and provenance
+  -> Claims and truth state
+  -> Receipt and lineage
+  -> deterministic rendering
 ```
 
-For development and tests:
+There is one selected planner, one logical-plan lineage, one executable plan,
+and one receipt bound to that executed plan. Plan and receipt digests are
+deterministic for the same query, domain configuration, and input facts.
+
+## Install and run
+
+The release candidate is local and is not uploaded to a package registry.
 
 ```bash
-python -m pip install -e '.[dev]'
-pytest -q
-```
-
-## Quick start
-
-```bash
+python -m pip install ia_rag_core-0.1.0rc1-py3-none-any.whl
 python examples/reference_demo.py
 ```
 
-The demo loads the synthetic research-network domain, registers its canonical
-planner, compiles a question, admits and executes the exact executable plan,
-and prints evidence, receipt lineage, and the deterministic response.
+For a source checkout with development tools:
 
-## Runtime model
-
-```mermaid
-flowchart LR
-    D[Domain information architecture] --> S[Semantic interpretation]
-    S --> L[Canonical logical plan]
-    L --> X[Canonical executable plan]
-    X --> G[Governance and assurance]
-    G --> E[Bounded execution]
-    E --> V[Evidence and provenance]
-    V --> C[Claims and truth state]
-    C --> R[Deterministic response]
+```bash
+python -m pip install '.[dev]'
+pytest -q
 ```
 
-The runtime has one selected planner, one logical-plan lineage, one
-executable plan, and one receipt bound to the executed plan. Reference
-assurance is injected explicitly and is deterministic. It can allow or deny
-execution without compiling or replacing plans.
+The quick-start demo is offline, uses no external credentials, and runs on a
+small synthetic research-network domain. Its output includes the selected
+planner, plan digests, evidence, receipt, and response.
 
-## Synthetic domains
+## Truth and bounded execution
 
-The reference package includes `research_network` and `equipment_network`.
-They are intentionally small and contain no application or customer data.
-Both open-world and closed-world truth behavior are demonstrated by the
-public tests.
+The reference domains demonstrate three explicit semantics:
 
-## Scope and limitations
+- `OPEN_WORLD`: an empty search does not prove that a fact is false, so the
+  result may be `UNKNOWN`.
+- `CLOSED_WORLD`: within the declared domain and complete evidence boundary,
+  an empty search can support a `FALSE` result.
+- `REQUIRED_SUBGRAPH`: when a declared required relation or traversal cannot
+  be established, execution remains incomplete and the runtime does not emit a
+  positive claim from the partial result.
 
-The public core is deliberately hermetic. Retrieval backends, language-model
-providers, graph databases, vector indexes, lexical indexes, and deployment
-integrations are extension points for future packages rather than base
-dependencies. The reference runtime uses an in-memory graph store and exact
-entity matching so that planning, governance, evidence, truth, and rendering
-can be inspected without network access.
+These semantics describe the evidence boundary and execution state. They do
+not guarantee truth about the real world beyond the supplied domain and
+evidence.
 
-The current package is a private staging candidate. Licensing and publication
-decisions are intentionally pending.
+## Feature claim ledger
 
+| Status | Claims supported by this candidate |
+| --- | --- |
+| `DEMONSTRATED` | Typed canonical plans; deterministic planning and lowering; explicit assurance allow/deny; bounded in-memory graph execution; evidence/provenance; open- and closed-world truth behavior; required-subgraph enforcement; plan-bound receipts and lineage; deterministic rendering; synthetic reference domains. |
+| `ARCHITECTURALLY_SUPPORTED` | Neutral protocols for graph, document, lexical, vector, embedding, entity, language-model, and telemetry integrations; domain semantic extensions; injected assurance providers. |
+| `FUTURE` | Production retrieval adapters, persistent stores, model-backed interpretation, deployment integrations, and production identity or high-assurance services. |
+| `NOT A CLAIM` | Elimination of probabilistic retrieval, a guarantee of real-world truth, or production qualification of external services. |
+
+## Deliberate scope
+
+The base distribution has zero runtime dependencies and contains only the
+canonical runtime, neutral contracts, deterministic reference assurance,
+in-memory execution, and synthetic reference domains. External services,
+credentials, application data, and deployment-specific integrations are not
+part of this candidate.
+
+IA-RAG Core is licensed under the Apache License 2.0; see [LICENSE](LICENSE).
+
+See [the public architecture](docs/architecture.md) and [the package
+boundary](docs/public-core-boundary.md) for the supported scope.

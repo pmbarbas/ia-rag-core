@@ -1,8 +1,8 @@
-"""Small neutral package surface for IA-RAG canonical contracts.
+"""Supported public API for IA-RAG Core 0.1.0rc1.
 
-Optional adapters and historical application surfaces are lazy.  Importing
-the package therefore does not require model, database, or extraction
-dependencies and does not construct a runtime or assurance provider.
+The package import is hermetic: it loads only the canonical runtime, neutral
+protocols, reference assurance, and synthetic reference-domain components.
+External adapters are separate integrations and are not part of this release.
 """
 
 from .domain import (
@@ -65,50 +65,6 @@ from .reference_domains import (
 )
 
 
-_LAZY_OPTIONAL_EXPORTS = {
-    "StructuralChunker": ("chunking", "StructuralChunker"),
-    "GraphRAGCore": ("graph", "GraphRAGCore"),
-    "GraphIngestionOrchestrator": ("graph", "GraphIngestionOrchestrator"),
-    "ConfigDrivenGraphHandler": ("graph", "ConfigDrivenGraphHandler"),
-    "JsonFileGraphStore": ("graph", "JsonFileGraphStore"),
-    "JsonFileDocumentStore": ("storage", "JsonFileDocumentStore"),
-    "JsonFileVectorIndex": ("storage", "JsonFileVectorIndex"),
-    "UniversalExtractionCore": ("universal_extraction", "UniversalExtractionCore"),
-    "UniversalLLMEntityExtractor": ("universal_extraction", "UniversalLLMEntityExtractor"),
-    "UniversalLLMRelationExtractor": ("universal_extraction", "UniversalLLMRelationExtractor"),
-    "load_domain_schema": ("universal_extraction", "load_domain_schema"),
-    "UniversalEntityResolver": ("universal_resolver", "UniversalEntityResolver"),
-    "UniversalEntityResolverConfig": ("universal_resolver", "UniversalEntityResolverConfig"),
-    "InMemoryTelemetrySink": ("telemetry", "InMemoryTelemetrySink"),
-    "HybridReasoningLayer": ("hybrid_reasoning", "HybridReasoningLayer"),
-    "CrossDomainFederator": ("cross_domain_federation", "CrossDomainFederator"),
-    "HybridSearcher": ("search", "HybridSearcher"),
-    "IntentClassifier": ("search", "IntentClassifier"),
-    "DynamicIntentClassifier": ("search", "DynamicIntentClassifier"),
-    "HyDEGenerator": ("search", "HyDEGenerator"),
-    "InMemoryLexicalIndex": ("search", "InMemoryLexicalIndex"),
-    "LangChainOllamaLLMProvider": ("llm", "LangChainOllamaLLMProvider"),
-    "LangChainEmbeddingProvider": ("llm", "LangChainEmbeddingProvider"),
-    "DummyLLMProvider": ("llm", "DummyLLMProvider"),
-    "MilvusLiteVectorIndex": ("milvus_adapter", "MilvusLiteVectorIndex"),
-    "Neo4jGraphStore": ("neo4j_adapter", "Neo4jGraphStore"),
-}
-
-
-def __getattr__(name):
-    target = _LAZY_OPTIONAL_EXPORTS.get(name)
-    if target is None:
-        raise AttributeError(name)
-    from importlib import import_module
-
-    try:
-        value = getattr(import_module(f"{__name__}.{target[0]}"), target[1])
-    except ImportError:  # Optional compatibility surface is unavailable.
-        value = None
-    globals()[name] = value
-    return value
-
-
 __all__ = [
     "Answer", "Chunk", "Document", "EvalItem", "EvalResult", "GraphEdge", "GraphNode", "GraphResult",
     "HybridSearchConfig", "Metadata", "Query", "ScoredChunk",
@@ -139,8 +95,8 @@ __all__ = [
 ]
 
 
-EXPORT_CLASSIFICATION = {
+_EXPORT_CLASSIFICATION = {
     "PUBLIC_CORE": tuple(__all__),
-    "PUBLIC_OPTIONAL_EXTRA": tuple(sorted(_LAZY_OPTIONAL_EXPORTS)),
-    "EXCLUDED_APPLICATION_SURFACES": ("historical_compatibility", "application_specific_adapters"),
+    "PUBLIC_OPTIONAL_EXTRA": (),
+    "EXCLUDED_APPLICATION_SURFACES": ("external_adapters", "application_specific_domains"),
 }

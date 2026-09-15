@@ -33,7 +33,8 @@
     "README.md",
     "SECURITY.md",
     "CONTRIBUTING.md",
-    "LICENSE_PENDING.md",
+    "LICENSE",
+    "CHANGELOG.md",
     "docs/architecture.md",
     "docs/public-core-boundary.md"
   ],
