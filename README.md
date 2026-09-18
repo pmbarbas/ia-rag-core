@@ -56,8 +56,11 @@ For a source checkout with development tools:
 
 ```bash
 python -m pip install '.[dev]'
-pytest -q
+python -m pytest -q
 ```
+
+Using `python -m pytest` ensures the tests run with the same Python
+interpreter and virtual environment into which IA-RAG Core was installed.
 
 The quick-start demo is offline, uses no external credentials, and runs on a
 small synthetic research-network domain. Its output includes the selected

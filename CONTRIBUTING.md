@@ -30,6 +30,9 @@ From a source checkout, run:
 
 ```bash
 python -m pip install '.[dev]'
-pytest -q
+python -m pytest -q
 python examples/reference_demo.py
 ```
+
+Using `python -m pytest` ensures the tests run with the same Python
+interpreter and virtual environment into which IA-RAG Core was installed.
