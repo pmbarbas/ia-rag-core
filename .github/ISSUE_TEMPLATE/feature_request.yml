@@ -1,0 +1,41 @@
+name: Feature or use-case request
+description: Propose a public-core use case or capability.
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For questions, ideas, and exploratory use cases, please consider [Discussions](https://github.com/pmbarbas/ia-rag-core/discussions).
+  - type: textarea
+    id: problem-use-case
+    attributes:
+      label: Problem or use case
+      description: What problem would this solve, and who would use it?
+    validations:
+      required: true
+  - type: textarea
+    id: desired-behavior
+    attributes:
+      label: Desired behavior
+      description: Describe the behavior and a small synthetic example if possible.
+    validations:
+      required: true
+  - type: textarea
+    id: public-abstraction-gap
+    attributes:
+      label: Why existing public abstractions are insufficient
+      description: Identify the current protocol, planner, domain, or rendering boundary that does not cover the use case.
+    validations:
+      required: true
+  - type: dropdown
+    id: public-api-change
+    attributes:
+      label: Is a public API change proposed?
+      options:
+        - "No"
+        - "Yes"
+        - "Unsure"
+    validations:
+      required: true

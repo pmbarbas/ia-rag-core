@@ -1,5 +1,10 @@
 # IA-RAG Core
 
+[![PyPI version](https://img.shields.io/pypi/v/ia-rag-core.svg)](https://pypi.org/project/ia-rag-core/)
+[![Python >=3.11](https://img.shields.io/badge/python-%E2%89%A53.11-3776AB.svg)](https://www.python.org/)
+[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![CI](https://github.com/pmbarbas/ia-rag-core/actions/workflows/ci.yml/badge.svg)](https://github.com/pmbarbas/ia-rag-core/actions/workflows/ci.yml)
+
 Governed, structure-aware retrieval and execution planning for agentic
 systems.
 
@@ -46,6 +51,8 @@ and one receipt bound to that executed plan. Plan and receipt digests are
 deterministic for the same query, domain configuration, and input facts.
 
 ## Install and run
+
+[PyPI package](https://pypi.org/project/ia-rag-core/)
 
 ```bash
 python -m pip install ia-rag-core
@@ -105,3 +112,14 @@ IA-RAG Core is licensed under the Apache License 2.0; see [LICENSE](LICENSE).
 
 See [the public architecture](docs/architecture.md) and [the package
 boundary](docs/public-core-boundary.md) for the supported scope.
+
+## Feedback and use cases
+
+We welcome real use cases, DomainPack experiments, architecture feedback,
+integration ideas, and bug reports.
+
+- Report bugs through [Issues](https://github.com/pmbarbas/ia-rag-core/issues).
+- Discuss questions, ideas, and use cases in
+  [Discussions](https://github.com/pmbarbas/ia-rag-core/discussions).
+- Report suspected vulnerabilities through
+  [private vulnerability reporting](https://github.com/pmbarbas/ia-rag-core/security/advisories/new).

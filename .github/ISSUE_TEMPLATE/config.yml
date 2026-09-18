@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions, ideas, and use cases
+    url: https://github.com/pmbarbas/ia-rag-core/discussions
+    about: Use Discussions for questions, architecture feedback, integration ideas, and exploratory use cases.
+  - name: Security vulnerability
+    url: https://github.com/pmbarbas/ia-rag-core/security/advisories/new
+    about: Report suspected vulnerabilities privately through GitHub security advisories.

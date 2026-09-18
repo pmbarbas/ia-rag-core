@@ -1,0 +1,59 @@
+name: Bug report
+description: Report a reproducible problem in IA-RAG Core.
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please use Discussions for questions and exploratory use cases. Do not include credentials or private data.
+  - type: input
+    id: iarag-version
+    attributes:
+      label: IA-RAG version
+      description: Which package version or commit are you using?
+      placeholder: 0.1.1
+    validations:
+      required: true
+  - type: input
+    id: python-version
+    attributes:
+      label: Python version
+      placeholder: Python 3.11.12
+    validations:
+      required: true
+  - type: input
+    id: installation-method
+    attributes:
+      label: Installation method
+      description: For example, PyPI wheel, source checkout, or editable install.
+      placeholder: python -m pip install ia-rag-core
+    validations:
+      required: true
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: minimal-reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Include the smallest code, configuration, and synthetic fixture that reproduces the problem.
+    validations:
+      required: true
+  - type: textarea
+    id: plan-receipt-output
+    attributes:
+      label: Relevant plan or receipt output
+      description: If applicable, include sanitized logical/executable plan, receipt, digest, or lineage output.
+    validations:
+      required: false
