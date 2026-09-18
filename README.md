@@ -48,15 +48,17 @@ deterministic for the same query, domain configuration, and input facts.
 ## Install and run
 
 ```bash
-python -m pip install ia_rag_core-0.1.0-py3-none-any.whl
-python examples/reference_demo.py
+python -m pip install ia-rag-core
 ```
 
-For a source checkout with development tools:
+The offline reference demo is available from a repository checkout. From the
+checkout, install the development tools and run the tests and demo with the
+same Python interpreter:
 
 ```bash
 python -m pip install '.[dev]'
 python -m pytest -q
+python examples/reference_demo.py
 ```
 
 Using `python -m pytest` ensures the tests run with the same Python

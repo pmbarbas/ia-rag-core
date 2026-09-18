@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.1 — 2026-09-18
+
+Packaging and distribution release.
+
+- PyPI Trusted Publishing support.
+- Corrected public project metadata and URLs.
+- Added PyPI installation documentation.
+- No runtime semantic changes.
+- No public API changes.
+
 ## 0.1.0 — 2026-09-15
 
 First public release, promoted from the `0.1.0rc1` candidate without

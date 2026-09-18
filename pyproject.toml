@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ia-rag-core"
-version = "0.1.0"
+version = "0.1.1"
 description = "Governed, structure-aware retrieval and execution planning for agentic systems."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -28,9 +28,11 @@ classifiers = [
 dependencies = []
 
 [project.urls]
-Homepage = "https://example.invalid/ia-rag-core"
-Documentation = "https://example.invalid/ia-rag-core/docs"
-Source = "https://example.invalid/ia-rag-core/source"
+Homepage = "https://github.com/pmbarbas/ia-rag-core"
+Documentation = "https://github.com/pmbarbas/ia-rag-core/tree/main/docs"
+Source = "https://github.com/pmbarbas/ia-rag-core"
+Issues = "https://github.com/pmbarbas/ia-rag-core/issues"
+Changelog = "https://github.com/pmbarbas/ia-rag-core/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 dev = ["pytest>=8"]
